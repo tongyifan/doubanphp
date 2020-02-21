@@ -1,6 +1,6 @@
 [general]
 api_endpoint = 'http://ptgen.tongyifan.workers.dev/'
-debug = true
+debug = false
 
 [cache]
 ; See https://book.cakephp.org/3/en/core-libraries/caching.html
