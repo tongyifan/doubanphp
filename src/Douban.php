@@ -135,7 +135,7 @@ class Douban
         $this->douban_votes = 0 + str_replace(',', '', $data['douban_votes']);
 
         $this->chinese_title = $data['chinese_title'];
-        $this->foreign_title = $data['foreign_title'];
+        $this->foreign_title = $data['foreign_title'] ?: @$data['trans_title'][0];
         $this->aka = @$data['aka'] ?: [];  // aka可能不存在
         $this->trans_title = $data['trans_title'];
         $this->this_title = $data['this_title'];
@@ -158,7 +158,7 @@ class Douban
 
         $this->format = $data['format'];
 
-        if (!$this->use_cache){
+        if (!$this->use_cache) {
             if ($this->sid != $this->douban_id)
                 Cache::add($this->sid, $this->douban_id);
             Cache::add($this->douban_id, $data);
