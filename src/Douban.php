@@ -147,7 +147,7 @@ class Douban
         $this->playdate = $data['playdate'];
         $this->episodes = $data['episodes'];
         $this->duration = $data['duration'];
-        $this->awards = explode('\n', $data['awards']);
+        $this->awards = array_filter(explode('\n', $data['awards']));
         $this->introduction = $data['introduction'];
         $this->tags = $data['tags'];
         $this->poster = $data['poster'];
