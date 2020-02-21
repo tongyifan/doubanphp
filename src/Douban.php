@@ -43,6 +43,7 @@ class Douban
     public $format;
 
     public $data;
+    private $use_cache = false;
 
 
     public function __construct($sid, $source = null, $config = null)
@@ -85,36 +86,38 @@ class Douban
         $this->gen();
     }
 
-    private function request()
+    private function request($nocache = false)
     {
-        $url = $this->config->api_endpoint . "?site=douban&sid=" . $this->sid . ($this->config->debug ? "&debug=1&nocache=" . rand() : "");
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $response = curl_exec($ch);
-        curl_close($ch);
-        $data = json_decode($response, true);
+        if (($data = Cache::read($this->sid)) === false || $nocache || $this->config->debug) {
+            $url = $this->config->api_endpoint . "?site=douban&sid=" . $this->sid . ($this->config->debug ? "&debug=1&nocache=" . rand() : "");
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            $response = curl_exec($ch);
+            curl_close($ch);
+            $data = json_decode($response, true);
 
-        if (!$data['success']) {
-            if ($this->config->debug)
-                throw new DoubanException($data['debug']);
-            else
-                throw new DoubanException($data['error']);
+            if (!$data['success']) {
+                if ($this->config->debug)
+                    throw new DoubanException($data['debug']);
+                else
+                    throw new DoubanException($data['error']);
+            }
+            $this->data = $data;
+        } else {
+            $this->use_cache = true;
+            if (is_numeric($data) && ($data = Cache::read($data)) === false)
+                $data = $this->request(true);
+            $this->data = $data;
         }
+
         return $data;
     }
 
 
     private function gen()
     {
-        if (($data = Cache::read($this->sid)) === false) {
-            $data = $this->request();
-            $this->data = $data;
-        } else {
-            if (is_numeric($data) && ($data = Cache::read($data)) === false)
-                $data = $this->request();
-            $this->data = $data;
-        }
+        $data = $this->request();
 
         if (!is_numeric($data['sid'])) {
             if (preg_match('/movie.douban.com\/subject\/(\d+)\//', $data['format'], $matches))
@@ -137,7 +140,7 @@ class Douban
         $this->trans_title = $data['trans_title'];
         $this->this_title = $data['this_title'];
 
-        $this->year = $data['year'];
+        $this->year = 0 + trim($data['year']);
         $this->region = $data['region'];
         $this->genre = $data['genre'];
         $this->language = $data['language'];
@@ -155,8 +158,10 @@ class Douban
 
         $this->format = $data['format'];
 
-        if ($this->sid != $this->douban_id)
-            Cache::add($this->sid, $this->douban_id);
-        Cache::add($this->douban_id, $data);
+        if (!$this->use_cache){
+            if ($this->sid != $this->douban_id)
+                Cache::add($this->sid, $this->douban_id);
+            Cache::add($this->douban_id, $data);
+        }
     }
 }
