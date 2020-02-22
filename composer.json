@@ -2,7 +2,7 @@
   "name": "tongyifan/doubanphp",
   "description": "Library for parsing metadata information about movies and TV shows from Douban Movie",
   "type": "library",
-  "version": "0.1",
+  "version": "0.1.1",
   "license": "MIT",
   "authors": [
     {
