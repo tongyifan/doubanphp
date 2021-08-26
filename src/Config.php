@@ -6,7 +6,7 @@ namespace Douban;
 
 class Config
 {
-    public $api_endpoint = "http://ptgen.tongyifan.workers.dev/";
+    public $api_endpoint = "http://your-ptgen-route.workers.dev/";
 
     public $debug = false;
 
