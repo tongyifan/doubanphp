@@ -1,5 +1,5 @@
 [general]
-api_endpoint = 'http://ptgen.tongyifan.workers.dev/'
+api_endpoint = 'http://your-ptgen-route.workers.dev/'
 debug = false
 
 [cache]
